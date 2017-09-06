@@ -2,4 +2,6 @@
 
 export(digest_dictionary)
 export(load_dictionary)
+export(synch_remote)
 importFrom(fastdigest,fastdigest)
+importFrom(vcs,ls_remote)

@@ -4,12 +4,17 @@
 \alias{digest_dictionary}
 \title{create/update a remote digest dictionary}
 \usage{
-digest_dictionary(..., storage = "storage")
+digest_dictionary(..., repo = NULL, local_storage = "storage",
+  remote_storage = "storage")
 }
 \arguments{
 \item{...}{objects to digest and add to dictionary}
 
-\item{storage}{character, directory to store the digests, Default: 'storage'}
+\item{repo}{character, user/repository, Default: NULL}
+
+\item{local_storage}{character, subdirectory where digests are saved locally, Default: 'storage'}
+
+\item{remote_storage}{character, subdirectory where digests are saved remotely, Default: 'storage'}
 }
 \value{
 character, named vector of the saved digests and the names of the objects they represent
