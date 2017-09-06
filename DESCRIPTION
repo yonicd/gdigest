@@ -1,0 +1,19 @@
+Package: gdigest
+Type: Package
+Title: Create digest for R objects on a remote repository
+Version: 0.1.0
+Date: 2017-09-06
+Author: c(person("Jonathan", "Sidi", email = "yonis@metrumrg.com", role = c("aut", "cre")))
+Maintainer: Jonathan Sidi <yonis@metrumrg.com>
+Description: This package helps maintain cached entries of R objects on a remote repository
+Depends:
+    R (>= 2.3.0)
+Imports: 
+    fastdigest
+License: GPL-2 | GPL-3
+URL: https://github.com/yonicd/gdigest
+BugReports: https://github.com/yonicd/gdigest/issues
+LazyData: true
+NeedsCompilation: no
+Packaged: 2017-01-31 14:00:00 UTC; Yoni
+RoxygenNote: 6.0.1
