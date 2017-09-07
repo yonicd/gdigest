@@ -29,7 +29,7 @@ digest_dictionary <- function(...,storage='storage'){
   
   if(!dir.exists(storage)) dir.create(storage)
   
-  synch_remote()
+  synch_remote(action='pull')
   
   load_dictionary()
   
@@ -37,7 +37,7 @@ digest_dictionary <- function(...,storage='storage'){
     this.digest <- fastdigest::fastdigest(eval(parse(text = x)))
     if(this.digest%in%dictionary){
       if(!sprintf('_%s.rda',this.digest)%in%list.files(storage))
-        synch_remote(file=sprintf('_%s.rda',this.digest))
+        synch_remote(file=sprintf('_%s.rda',this.digest),action='pull')
       load(file.path(storage,sprintf('_%s.rda',this.digest))) 
     }else{
       assign(this.digest,eval(parse(text = x)))
@@ -66,6 +66,10 @@ digest_dictionary <- function(...,storage='storage'){
       save(dictionary,file=file.path(storage,'dictionary.rda'))
 
   }
-  synch_remote()
+  
+  dictionary <- as.digest(dictionary)
+  
+  synch_remote(action='push')
+  
   invisible(dictionary)
 }

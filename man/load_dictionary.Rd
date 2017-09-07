@@ -4,10 +4,12 @@
 \alias{load_dictionary}
 \title{Load the digest dictionary to the global environment}
 \usage{
-load_dictionary(storage = "storage")
+load_dictionary(local_storage = "storage", remote_storage = "storage")
 }
 \arguments{
-\item{storage}{character, path to dictionary file, Default: 'storage'}
+\item{local_storage}{character, subdirectory where digests are saved locally, Default: 'storage'}
+
+\item{remote_storage}{character, subdirectory where digests are saved remotely, Default: 'storage'}
 }
 \description{
 Load the digest dictionary to the global environment
