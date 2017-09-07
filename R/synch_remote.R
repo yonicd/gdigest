@@ -1,5 +1,7 @@
 #' @title Retrieve current files in remote storage to local directory
 #' @description FUNCTION_DESCRIPTION
+#' @param file character, vector of files to retrieve from the repository, 
+#' Default: c('dictionary.rda','README.md')
 #' @param repo character, user/repository
 #' @param local_storage character, subdirectory where digests are saved locally, Default: 'storage'
 #' @param remote_storage character, subdirectory where digests are saved remotely, Default: 'storage'
@@ -11,22 +13,32 @@
 #' @export 
 #' @author Jonathan Sidi
 #' @importFrom vcs ls_remote
-synch_remote <- function(repo, local_storage='storage', remote_storage='storage', ...){
+synch_remote <- function(file=c('dictionary.rda','README.md'),repo=NULL, local_storage='storage', remote_storage='storage', ...){
+  
+  if(is.null(repo)){
+    remote_v <- system('git remote -v',intern=TRUE)
+    if(length(remote_v)==0) stop('No repository supplied and current working directory not a remote repo')
+    repo=gsub('\\.(.*?)$','',gsub('^(.*?):','',remote_v[1])) 
+  }
+  
   repo_current <- basename(vcs::ls_remote(repo, subdir = remote_storage, ...))
   
   new_from_remote <- setdiff(repo_current, list.files(local_storage))
   
-  if(length(new_from_remote)>0){
+  if( length(new_from_remote)>0 ){
     system('git fetch')
-    system(sprintf('git checkout HEAD %s',remote_storage))
+    system(sprintf('git checkout %s',paste0(file.path(remote_storage,file),collapse=' ')))
   }
   
   new_from_local <- setdiff(list.files(local_storage),repo_current)
+
+  load_dictionary()
+  cat(knitr::kable(dictionary,col.names = 'digest'),file=file.path(local_storage,'README.md'),sep='\n')
   
-  if(length(new_from_local)>0){
+  if( length(new_from_local)>0 ){
     system(sprintf("git add %s",remote_storage))
     system(sprintf("git commit -m 'add files %s' -- %s",paste0(new_from_local,collapse = ','),remote_storage))
-    junk=system('git push origin master',intern = TRUE)
+    system('git push origin master')
   }
 
 }

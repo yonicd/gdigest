@@ -4,10 +4,13 @@
 \alias{synch_remote}
 \title{Retrieve current files in remote storage to local directory}
 \usage{
-synch_remote(repo, local_storage = "storage", remote_storage = "storage",
-  ...)
+synch_remote(file = c("dictionary.rda", "README.md"), repo = NULL,
+  local_storage = "storage", remote_storage = "storage", ...)
 }
 \arguments{
+\item{file}{character, vector of files to retrieve from the repository, 
+Default: c('dictionary.rda','README.md')}
+
 \item{repo}{character, user/repository}
 
 \item{local_storage}{character, subdirectory where digests are saved locally, Default: 'storage'}
