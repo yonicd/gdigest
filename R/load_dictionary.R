@@ -11,7 +11,13 @@
 #' @author Jonathan Sidi
 load_dictionary <- function(local_storage='storage',remote_storage='storage'){
   synch_remote(local_storage = local_storage,remote_storage = remote_storage,action='pull')
-  load(file.path(local_storage,'dictionary.rda'))
+  
+  dictionary <- ''
+  
+  if(file.exists(file.path(local_storage,'dictionary.rda')))
+    load(file.path(local_storage,'dictionary.rda'))
+  
   dictionary <- as.digest(dictionary)
+  
   assign('dictionary',value = dictionary,envir = sys.frame(-1))
 }

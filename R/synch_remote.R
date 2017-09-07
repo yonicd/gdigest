@@ -36,6 +36,16 @@ synch_remote <- function(file=c('dictionary.rda','README.md'),action='pull',repo
   new_from_local <- setdiff(list.files(local_storage),repo_current)
 
   if('push'%in%action){
+  
+    if(!file.exists('.gitignore')) 
+        file.create('.gitignore')
+    
+    gi <- readLines('.gitignore')
+    gi <- gi[-grep('storage/(README|dictionary)',gi)]
+    
+    cat(gi,file = '.gitignore',append = FALSE,sep='\n')
+    
+    
   load_dictionary()
   cat(knitr::kable(dictionary,col.names = 'digest'),file=file.path(local_storage,'README.md'),sep='\n')
   
@@ -44,6 +54,12 @@ synch_remote <- function(file=c('dictionary.rda','README.md'),action='pull',repo
       system(sprintf("git commit -m 'add files %s' -- %s",paste0(new_from_local,collapse = ','),remote_storage))
       system('git push origin master')
     }
+  
+  repo_current <- vcs::ls_remote(repo, subdir = remote_storage, ...)
+  
+  cat(unique(c(readLines('.gitignore'),repo_current)),file = '.gitignore',append = TRUE,sep='\n')
+  
+    
   }
 
 }

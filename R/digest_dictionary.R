@@ -29,8 +29,6 @@ digest_dictionary <- function(...,storage='storage'){
   
   if(!dir.exists(storage)) dir.create(storage)
   
-  synch_remote(action='pull')
-  
   load_dictionary()
   
   dictionary_new <- sapply(param.names,function(x){
