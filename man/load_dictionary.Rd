@@ -4,7 +4,7 @@
 \alias{load_dictionary}
 \title{Load the digest dictionary to the global environment}
 \usage{
-load_dictionary(local_storage = "storage", remote_storage = "storage")
+load_dictionary(local_storage = ".rcache", remote_storage = ".rcache")
 }
 \arguments{
 \item{local_storage}{character, subdirectory where digests are saved locally, Default: 'storage'}

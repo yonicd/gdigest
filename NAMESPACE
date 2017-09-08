@@ -2,8 +2,12 @@
 
 S3method(print,digest)
 export(as.digest)
+export(attach_mem_hash)
 export(digest_dictionary)
+export(get_cache)
 export(load_dictionary)
+export(memoise_wrapper)
 export(synch_remote)
+export(unpack_cache)
 importFrom(digest,digest)
 importFrom(vcs,ls_remote)
