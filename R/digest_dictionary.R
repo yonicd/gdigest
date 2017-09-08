@@ -13,7 +13,7 @@
 #' 
 #' @rdname digest_dictionary
 #' @export 
-#' @importFrom fastdigest fastdigest
+#' @importFrom digest digest
 #' @author Jonathan Sidi
 
 digest_dictionary <- function(...,storage='storage'){
@@ -32,7 +32,7 @@ digest_dictionary <- function(...,storage='storage'){
   load_dictionary()
   
   dictionary_new <- sapply(param.names,function(x){
-    this.digest <- fastdigest::fastdigest(eval(parse(text = x)))
+    this.digest <- digest::digest(eval(parse(text = x)))
     if(this.digest%in%dictionary){
       if(!sprintf('_%s.rda',this.digest)%in%list.files(storage))
         synch_remote(file=sprintf('_%s.rda',this.digest),action='pull')

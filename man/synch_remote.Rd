@@ -5,7 +5,7 @@
 \title{Retrieve current files in remote storage to local directory}
 \usage{
 synch_remote(file = c("dictionary.rda", "README.md"), action = "pull",
-  repo = NULL, local_storage = "storage", remote_storage = "storage", ...)
+  repo = NULL, local_storage = ".rcache", remote_storage = ".rcache", ...)
 }
 \arguments{
 \item{file}{character, vector of files to retrieve from the repository, 
@@ -15,9 +15,9 @@ Default: c('dictionary.rda','README.md')}
 
 \item{repo}{character, user/repository}
 
-\item{local_storage}{character, subdirectory where digests are saved locally, Default: 'storage'}
+\item{local_storage}{character, subdirectory where digests are saved locally, Default: '.rcache'}
 
-\item{remote_storage}{character, subdirectory where digests are saved remotely, Default: 'storage'}
+\item{remote_storage}{character, subdirectory where digests are saved remotely, Default: '.rcache'}
 
 \item{...}{parameters to pass to \code{\link[vcs]{ls_remote}}}
 }

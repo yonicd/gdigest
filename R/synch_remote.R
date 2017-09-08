@@ -4,8 +4,8 @@
 #' Default: c('dictionary.rda','README.md')
 #' @param action character, push, pull or c('push','pull'), Default: 'pull'
 #' @param repo character, user/repository
-#' @param local_storage character, subdirectory where digests are saved locally, Default: 'storage'
-#' @param remote_storage character, subdirectory where digests are saved remotely, Default: 'storage'
+#' @param local_storage character, subdirectory where digests are saved locally, Default: '.rcache'
+#' @param remote_storage character, subdirectory where digests are saved remotely, Default: '.rcache'
 #' @param ... parameters to pass to \code{\link[vcs]{ls_remote}}
 #' @return nothing
 #' @seealso 
@@ -14,7 +14,7 @@
 #' @export 
 #' @author Jonathan Sidi
 #' @importFrom vcs ls_remote
-synch_remote <- function(file=c('dictionary.rda','README.md'),action='pull',repo=NULL, local_storage='storage', remote_storage='storage', ...){
+synch_remote <- function(file=c('dictionary.rda','README.md'),action='pull',repo=NULL, local_storage='.rcache', remote_storage='.rcache', ...){
   
   if(is.null(repo)){
     remote_v <- system('git remote -v',intern=TRUE)
@@ -46,8 +46,8 @@ synch_remote <- function(file=c('dictionary.rda','README.md'),action='pull',repo
     cat(gi,file = '.gitignore',append = FALSE,sep='\n')
     
     
-  load_dictionary()
-  cat(knitr::kable(dictionary,col.names = 'digest'),file=file.path(local_storage,'README.md'),sep='\n')
+  #load_dictionary()
+  #cat(knitr::kable(dictionary,col.names = 'digest'),file=file.path(local_storage,'README.md'),sep='\n')
   
     if( length(new_from_local)>0 ){
       system(sprintf("git add %s",remote_storage))

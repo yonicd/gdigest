@@ -9,7 +9,7 @@
 #' @rdname load_dictionary
 #' @export 
 #' @author Jonathan Sidi
-load_dictionary <- function(local_storage='storage',remote_storage='storage'){
+load_dictionary <- function(local_storage='.rcache',remote_storage='.rcache'){
   synch_remote(local_storage = local_storage,remote_storage = remote_storage,action='pull')
   
   dictionary <- ''
