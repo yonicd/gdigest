@@ -1,7 +1,11 @@
 #' @export
 print.digest <- function(x,...){
-  x <- data.frame(x,stringsAsFactors = FALSE)
-  names(x) <- 'digest'
-  print(x)
-  invisible(x)
+  sapply(x,
+         
+         function(x){
+           switch(class(x),
+                  data.frame = dplyr::as.tbl(x),
+                  x)
+         } 
+  )
 }
