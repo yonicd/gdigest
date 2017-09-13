@@ -10,7 +10,7 @@ devtools::install_github('yonicd/gdigest')
 library(gdigest)
 
 #set the cache path
-db_path <- "~/projects/gdigest/.rcache"
+db_path <- normalizePath('.rcache')
 db <- memoise::cache_filesystem(db_path)
 
 #add the path to the cache function
