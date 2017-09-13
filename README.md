@@ -1,6 +1,6 @@
 synch digest and digest dictionary with remote repository. This has an application with shiny apps where objects are cached on a repository instead of a local machine, creating a passively increasing cache directory that multiple users can read and write to. This should increase app efficiency by only one user running new parameter permutations of a app.
 
-For an example see the [.rcache subdir](https://github.com/yonicd/gdigest/tree/master/.rcache).
+For an example see the [.rcache](https://github.com/yonicd/gdigest/tree/master/.rcache) subdirectory.
 
 ```r
 #install package
