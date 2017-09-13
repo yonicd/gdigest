@@ -1,7 +1,7 @@
 #' @title Retrieve current files in remote storage to local directory
 #' @description FUNCTION_DESCRIPTION
 #' @param file character, vector of files to retrieve from the repository, 
-#' Default: c('dictionary.rda','README.md')
+#' Default: 'README.md'
 #' @param action character, push, pull or c('push','pull'), Default: 'pull'
 #' @param repo character, user/repository
 #' @param local_storage character, subdirectory where digests are saved locally, Default: '.rcache'
@@ -14,7 +14,7 @@
 #' @export 
 #' @author Jonathan Sidi
 #' @importFrom vcs ls_remote
-synch_remote <- function(file=c('dictionary.rda','README.md'),action='pull',repo=NULL, local_storage='.rcache', remote_storage='.rcache', ...){
+synch_remote <- function(file='README.md',action='pull',repo=NULL, local_storage='.rcache', remote_storage='.rcache', ...){
   
   if(is.null(repo)){
     remote_v <- system('git remote -v',intern=TRUE)

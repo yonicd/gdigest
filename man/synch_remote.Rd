@@ -4,12 +4,12 @@
 \alias{synch_remote}
 \title{Retrieve current files in remote storage to local directory}
 \usage{
-synch_remote(file = c("dictionary.rda", "README.md"), action = "pull",
-  repo = NULL, local_storage = ".rcache", remote_storage = ".rcache", ...)
+synch_remote(file = "README.md", action = "pull", repo = NULL,
+  local_storage = ".rcache", remote_storage = ".rcache", ...)
 }
 \arguments{
 \item{file}{character, vector of files to retrieve from the repository, 
-Default: c('dictionary.rda','README.md')}
+Default: 'README.md'}
 
 \item{action}{character, push, pull or c('push','pull'), Default: 'pull'}
 
