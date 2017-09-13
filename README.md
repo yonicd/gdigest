@@ -19,12 +19,19 @@ db$path <- db_path
 #set the data
 smc <- hbgd::get_smocc_data()[1:2000,]
 
+#pull from remote
+synch_remote(list.files(db_path,full.names = TRUE),action = 'pull')
+
 #initialize the memoised function
 init_mem(f = hbgd::get_fit,cache = db,fname = 'mem_hgbd')
 
 # Command line call
 memoise_wrapper(f=mem_hgbd,db=db, dat = smc, y_var = 'haz', method='brokenstick')
 
-# Shiny app
+# push to remote
+synch_remote(list.files(db_path,full.names = TRUE),action = 'push')
+
+
+# Shiny app (handles for the user the remote push/pull)
 memofit(data=smc,db = db, f=mem_hgbd)
 ```
