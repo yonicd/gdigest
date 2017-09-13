@@ -19,7 +19,7 @@
 #' @importFrom ggplot2 ggplot geom_point aes geom_line scale_x_continuous
 #' @importFrom hbgd get_avail_methods
 #' @importFrom miniUI miniPage gadgetTitleBar miniTitleBarButton miniContentPanel
-#' @importFrom plyr ldply
+#' @importFrom purrr map_df
 #' @import shiny 
 memofit <- function(data, db, f) {
   
@@ -39,6 +39,11 @@ memofit <- function(data, db, f) {
     
     
     fit <- shiny::eventReactive(input$go,{
+      
+      if(input$method=='face')
+        if(!'face'%in%row.names(installed.packages()))
+          devtools::install_github('HBGDki/face')
+      
       memoise_wrapper(f=f,db=db, dat = data, y_var = input$y_var, method=input$method)  
     })
     
@@ -63,8 +68,8 @@ memofit <- function(data, db, f) {
         
       }else{
         names(fit_traj) <- input$subjid
-        xy <- plyr::ldply(fit_traj,function(x) x$xy,.id='subjid')
-        fitgrid <- plyr::ldply(fit_traj,function(x) x$fitgrid,.id='subjid')
+        xy <- purrr::map_df(fit_traj,.f=function(x) x$xy,.id='subjid')
+        fitgrid <- purrr::map_df(fit_traj,.f=function(x) x$fitgrid,.id='subjid')
       }
       
       return(list(xy=xy,fitgrid=fitgrid))
@@ -72,20 +77,33 @@ memofit <- function(data, db, f) {
     })
     
     observeEvent(input$prerun,{
+      
+      sel <- names(data)[1]
+      
+      if(length(list.files('.rcache',pattern = '^_'))>0)
+        sel <- readRDS(file.path(db$path,input$prerun))$y_var
+
       output$y_var <- shiny::renderUI({
         shiny::selectInput(inputId = 'y_var',
                            label = 'conditional variable',
                            choices = names(data), 
-                           selected = readRDS(file.path(db$path,input$prerun))$y_var
+                           selected = sel
         )
       })  
       
       output$method <- shiny::renderUI({
         
+        methods <- hbgd::get_avail_methods()
+
+        sel <- methods[1]
+                
+        if(length(list.files('.rcache',pattern = '^_'))>0)
+          sel <- readRDS(file.path(db$path,input$prerun))$method
+
         shiny::selectInput(inputId = 'method',
                            label = 'fit method',
-                           choices = hbgd::get_avail_methods(), 
-                           selected = readRDS(file.path(db$path,input$prerun))$method
+                           choices = methods, 
+                           selected = sel
         )
       })
       
@@ -112,10 +130,12 @@ memofit <- function(data, db, f) {
       
       FILES <- list.files('.rcache',pattern = '^_')
       
+      if(length(FILES)==0){FL = NULL}else{FL=FILES[1]}
+      
       shiny::selectInput(inputId = 'prerun',
                          label = 'Pre Run Fits',
                          choices = FILES,
-                         selected = FILES[1])
+                         selected = FL)
     })
     
     output$tbl <- shiny::renderDataTable(

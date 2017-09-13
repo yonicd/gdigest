@@ -44,11 +44,7 @@ synch_remote <- function(file=c('dictionary.rda','README.md'),action='pull',repo
     gi <- gi[-grep('storage/(README|dictionary)',gi)]
     
     cat(gi,file = '.gitignore',append = FALSE,sep='\n')
-    
-    
-  #load_dictionary()
-  #cat(knitr::kable(dictionary,col.names = 'digest'),file=file.path(local_storage,'README.md'),sep='\n')
-  
+
     if( length(new_from_local)>0 ){
       system(sprintf("git add %s",remote_storage))
       system(sprintf("git commit -m 'add files %s' -- %s",paste0(new_from_local,collapse = ','),remote_storage))

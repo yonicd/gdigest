@@ -9,7 +9,7 @@ Description: This package helps maintain cached entries of R objects on a remote
 Depends:
     R (>= 2.3.0)
 Imports: 
-    digest,ggplot2,hbgd,miniUI,plyr,shiny,dplyr
+    memoise,ggplot2,hbgd,miniUI,purrr,shiny
 Remotes:
     metrumresearchgroup/vcs
 License: GPL-2 | GPL-3
