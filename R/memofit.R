@@ -28,7 +28,7 @@ memofit <- function(data, db, f) {
   server <- function(input, output, session) {
     
     shiny::observeEvent(plot_data(),{
-      if(!is.null(plot_data())){
+      if(length(plot_data())>0){
         output$fitPlot <- shiny::renderPlot({
           ggplot2::ggplot()+
             ggplot2::geom_point(data=plot_data()$xy,ggplot2::aes(x=x,y=y,colour=subjid))+
@@ -39,15 +39,15 @@ memofit <- function(data, db, f) {
     
     
     fit <- shiny::eventReactive(input$go,{
-      memoise_wrapper(f=f,db=db, dat = smc, y_var = input$y_var, method=input$method)  
+      memoise_wrapper(f=f,db=db, dat = data, y_var = input$y_var, method=input$method)  
     })
     
     
-    plot_data <- shiny::reactive({
+    plot_data <- shiny::eventReactive(fit(),{
       suppressMessages({
         
         fit_traj <- lapply(as.numeric(input$subjid), function(x,fit0){
-          fit_trajectory(subset(smc, subjid == x), fit = fit0) 
+          hbgd::fit_trajectory(subset(data, subjid == x), fit = fit0) 
         },fit0=fit())
         
       })
@@ -71,26 +71,36 @@ memofit <- function(data, db, f) {
       
     })
     
-    output$y_var <- shiny::renderUI({
-      shiny::selectInput(inputId = 'y_var',
-                         label = 'conditional variable',
-                         choices = names(smc), 
-                         selected = 'haz')
+    observeEvent(input$prerun,{
+      output$y_var <- shiny::renderUI({
+        shiny::selectInput(inputId = 'y_var',
+                           label = 'conditional variable',
+                           choices = names(data), 
+                           selected = readRDS(file.path(db$path,input$prerun))$y_var
+        )
+      })  
+      
+      output$method <- shiny::renderUI({
+        
+        shiny::selectInput(inputId = 'method',
+                           label = 'fit method',
+                           choices = hbgd::get_avail_methods(), 
+                           selected = readRDS(file.path(db$path,input$prerun))$method
+        )
+      })
+      
     })
     
-    output$method <- shiny::renderUI({
-      shiny::selectInput(inputId = 'method',
-                         label = 'fit method',
-                         choices = hbgd::get_avail_methods(), 
-                         selected = 'fda')
-    })
+    
+    
     
     output$subjid <- shiny::renderUI({
+      subjs <- as.character(unique(data$subjid))
       shiny::selectInput(inputId = 'subjid',
                          label = 'select subject to plot',
-                         choices = as.character(unique(smc$subjid)), 
+                         choices = subjs, 
                          multiple = TRUE,
-                         selected = '10001')
+                         selected = subjs[1])
     })
     
     shiny::observeEvent(input$exit,{
@@ -108,6 +118,10 @@ memofit <- function(data, db, f) {
                          selected = FILES[1])
     })
     
+    output$tbl <- shiny::renderDataTable(
+      readRDS(file.path(db$path,input$prerun))$dat
+    )
+    
   }
   
   ui <- miniUI::miniPage(
@@ -123,7 +137,16 @@ memofit <- function(data, db, f) {
           shiny::uiOutput('y_var'),
           shiny::uiOutput('method')
         ),
-        shiny::mainPanel(shiny::plotOutput("fitPlot"))
+        shiny::mainPanel(
+          shiny::tabsetPanel(
+            shiny::tabPanel(
+              title = 'Plot',shiny::plotOutput("fitPlot")),
+          shiny::tabPanel(
+              title = 'Prerun Setting',
+              shiny::dataTableOutput('tbl')
+              )
+          )
+        )
       )
     ))
   

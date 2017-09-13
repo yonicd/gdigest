@@ -14,7 +14,7 @@
 attach_mem_hash <-function(x, db, f, ...){
   mem_hash<- get_cache(f)(...)
   temp <- get(x,envir = sys.frame(-1))
-  temp$fn <- body(unpack_cache(fn)()$`_f`)[[3]]
+  temp$fn <- body(unpack_cache(f)()$`_f`)[[3]]
   saveRDS(temp,file = file.path(db$path,sprintf('_%s',mem_hash)))
   rm(list=x,envir = sys.frame(-1))
 }

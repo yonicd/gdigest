@@ -8,7 +8,7 @@
 #' @author Jonathan Sidi
 
 unpack_cache <- function(f, ...) {
-  if(!is.memoised(f)) stop("`f` is not a memoised function!", call. = FALSE)
+  if(!memoise::is.memoised(f)) stop("`f` is not a memoised function!", call. = FALSE)
   body <- body(f)
   body <- body[1:8]
   body[[9]] <- quote(sapply(ls(envir = encl),function(x) eval(parse(text = sprintf('`%s`',x))),simplify = FALSE))
