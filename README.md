@@ -6,8 +6,12 @@ For an example see the [.rcache subdir](https://github.com/yonicd/gdigest/tree/m
 #install package
 devtools::install_github('yonicd/gdigest')
 
+
 #load the library
 library(gdigest)
+
+#clone the repository where the cache is located
+#git2r::clone('https://github.com/yonicd/gdigest.git')
 
 #set the cache path
 db_path <- normalizePath('.rcache')
