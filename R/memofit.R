@@ -3,7 +3,7 @@
 #' @param data PARAM_DESCRIPTION
 #' @param db PARAM_DESCRIPTION
 #' @param f PARAM_DESCRIPTION
-#' @param synch_cache PARAM DESCRIPTION, Default: FALSE
+#' @param synch_cache PARAM DESCRIPTION, Default: TRUE
 #' @return OUTPUT_DESCRIPTION
 #' @details DETAILS
 #' @examples 
@@ -22,7 +22,7 @@
 #' @importFrom miniUI miniPage gadgetTitleBar miniTitleBarButton miniContentPanel
 #' @importFrom purrr map_df
 #' @import shiny 
-memofit <- function(data, db, f, synch_cache=FALSE) {
+memofit <- function(data, db, f, synch_cache=TRUE) {
   
   if(synch_cache) synch_remote(action = 'pull')
   
