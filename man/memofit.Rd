@@ -4,7 +4,7 @@
 \alias{memofit}
 \title{FUNCTION_TITLE}
 \usage{
-memofit(data, db, f)
+memofit(data, db, f, synch_cache = FALSE)
 }
 \arguments{
 \item{data}{PARAM_DESCRIPTION}
@@ -12,6 +12,8 @@ memofit(data, db, f)
 \item{db}{PARAM_DESCRIPTION}
 
 \item{f}{PARAM_DESCRIPTION}
+
+\item{synch_cache}{PARAM DESCRIPTION, Default: FALSE}
 }
 \value{
 OUTPUT_DESCRIPTION

@@ -3,6 +3,7 @@
 #' @param data PARAM_DESCRIPTION
 #' @param db PARAM_DESCRIPTION
 #' @param f PARAM_DESCRIPTION
+#' @param synch_cache PARAM DESCRIPTION, Default: FALSE
 #' @return OUTPUT_DESCRIPTION
 #' @details DETAILS
 #' @examples 
@@ -21,22 +22,33 @@
 #' @importFrom miniUI miniPage gadgetTitleBar miniTitleBarButton miniContentPanel
 #' @importFrom purrr map_df
 #' @import shiny 
-memofit <- function(data, db, f) {
+memofit <- function(data, db, f, synch_cache=FALSE) {
   
-  synch_remote(action = 'pull')
+  if(synch_cache) synch_remote(action = 'pull')
+  
+  
   
   server <- function(input, output, session) {
-    
+  
+    FILES <- shiny::reactivePoll(1000,
+                        session = session,
+                        checkFunc = {
+                          function() {list.files('.rcache',pattern = '^_')}
+                        },
+                        valueFunc = {
+                          function() {list.files('.rcache',pattern = '^_')}
+                        })
+      
     shiny::observeEvent(plot_data(),{
       if(length(plot_data())>0){
         output$fitPlot <- shiny::renderPlot({
           ggplot2::ggplot()+
             ggplot2::geom_point(data=plot_data()$xy,ggplot2::aes(x=x,y=y,colour=subjid))+
             ggplot2::geom_line(data=plot_data()$fitgrid,ggplot2::aes(x=x,y=y,colour=subjid))+
-            ggplot2::scale_x_continuous(limits=input$x_range)
+            ggplot2::scale_x_continuous(limits=input$x_range)+
+            ggplot2::labs(y=input$y_var,title=sprintf('The fit method "%s" was applied',input$method), x='Days')
         })}
     })
-    
     
     fit <- shiny::eventReactive(input$go,{
       
@@ -47,10 +59,9 @@ memofit <- function(data, db, f) {
       memoise_wrapper(f=f,db=db, dat = data, y_var = input$y_var, method=input$method)  
     })
     
-    
     plot_data <- shiny::eventReactive(fit(),{
+
       suppressMessages({
-        
         fit_traj <- lapply(as.numeric(input$subjid), function(x,fit0){
           hbgd::fit_trajectory(subset(data, subjid == x), fit = fit0) 
         },fit0=fit())
@@ -76,13 +87,37 @@ memofit <- function(data, db, f) {
       
     })
     
-    observeEvent(input$prerun,{
+    output$subjid <- shiny::renderUI({
+      subjs <- as.character(unique(data$subjid))
+      shiny::selectInput(inputId = 'subjid',
+                         label = 'select subject to plot',
+                         choices = subjs, 
+                         multiple = TRUE,
+                         selected = subjs[1])
+    })
+    
+    shiny::observeEvent(input$exit,{
+      if(synch_cache) synch_remote(action = 'push')
+      shiny::stopApp()
+    })
+    
+    output$fprerun <- shiny::renderUI({
+      
+      if(length(FILES())==0){FL = NULL}else{FL=FILES()[1]}
+      
+      shiny::selectInput(inputId = 'fprerun',
+                         label = 'Filtered Pre Run Fits',
+                         choices = FILES(),
+                         selected = FL)
+    })
+    
+    observeEvent(input$fprerun,{
       
       sel <- names(data)[1]
       
-      if(length(list.files('.rcache',pattern = '^_'))>0)
-        sel <- readRDS(file.path(db$path,input$prerun))$y_var
-
+        if(length(list.files(db$path))>0)
+          sel <- readRDS(file.path(db$path,input$fprerun))$y_var
+      
       output$y_var <- shiny::renderUI({
         shiny::selectInput(inputId = 'y_var',
                            label = 'conditional variable',
@@ -94,12 +129,12 @@ memofit <- function(data, db, f) {
       output$method <- shiny::renderUI({
         
         methods <- hbgd::get_avail_methods()
-
+        
         sel <- methods[1]
-                
-        if(length(list.files('.rcache',pattern = '^_'))>0)
-          sel <- readRDS(file.path(db$path,input$prerun))$method
-
+        
+        if(length(list.files(db$path))>0)
+           sel <- readRDS(file.path(db$path,input$fprerun))$method
+        
         shiny::selectInput(inputId = 'method',
                            label = 'fit method',
                            choices = methods, 
@@ -109,38 +144,63 @@ memofit <- function(data, db, f) {
       
     })
     
-    
-    
-    
-    output$subjid <- shiny::renderUI({
-      subjs <- as.character(unique(data$subjid))
-      shiny::selectInput(inputId = 'subjid',
-                         label = 'select subject to plot',
-                         choices = subjs, 
-                         multiple = TRUE,
-                         selected = subjs[1])
+    output$choiceTbl <- DT::renderDataTable({
+      df <- as.data.frame(t(sapply(FILES(),
+                                   function(x){
+                                     readRDS(file.path(db$path,x))[c('y_var','method')]
+                                   })
+                            )
+                      )
+      
+      df$y_var <- unlist(df$y_var)
+      df$method <- unlist(df$method)
+      
+      DT::datatable(df,caption = 'Fits that have been cached',
+                    filter = 'top',
+                    selection="multiple", 
+                    escape=FALSE, 
+                    colnames = c('Response','Fit Method'),
+                    options = list(paging=FALSE,
+                                   autoWidth = TRUE,
+                                   bInfo=FALSE,
+                                   sDom  = '<"top">lrt<"bottom">ip'))
     })
     
-    shiny::observeEvent(input$exit,{
-      synch_remote(action = 'push')
-      shiny::stopApp()
+    observeEvent(input$choiceTbl_rows_all,{
+      shiny::updateSelectInput(inputId = 'fprerun',session = session,
+                         choices = FILES()[input$choiceTbl_rows_all])
     })
     
-    output$prerun <- shiny::renderUI({
-      
-      FILES <- list.files('.rcache',pattern = '^_')
-      
-      if(length(FILES)==0){FL = NULL}else{FL=FILES[1]}
-      
-      shiny::selectInput(inputId = 'prerun',
-                         label = 'Pre Run Fits',
-                         choices = FILES,
-                         selected = FL)
+    observeEvent(input$choiceTbl_rows_selected,{
+      shiny::updateSelectInput(inputId = 'fprerun',session = session,
+                               choices = FILES()[input$choiceTbl_rows_selected])
     })
     
-    output$tbl <- shiny::renderDataTable(
-      readRDS(file.path(db$path,input$prerun))$dat
-    )
+    output$tbl <- DT::renderDataTable({
+      
+      if(length(list.files(db$path))>0){
+        df <- readRDS(file.path(db$path,input$fprerun))$dat
+      }else{
+        df <- data 
+      }
+      
+      DT::datatable(df,
+                    filter = 'top',
+                    selection="multiple", 
+                    escape=FALSE,
+                    extensions = c('Scroller','FixedHeader','FixedColumns'),
+                    options = list(autoWidth = TRUE,
+                                   sDom  = '<"top">lrt<"bottom">ip',
+                                   dom = 't',
+                                   colReorder = TRUE,
+                                   scrollX = TRUE,
+                                   fixedColumns = TRUE,
+                                   fixedHeader = TRUE,
+                                   deferRender = TRUE,
+                                   scrollY = 500,
+                                   scroller = TRUE))
+      
+    })
     
   }
   
@@ -151,19 +211,22 @@ memofit <- function(data, db, f) {
     miniUI::miniContentPanel(
       shiny::sidebarLayout(
         shiny::sidebarPanel(
-          shiny::uiOutput('prerun'),
+          shiny::wellPanel(                            
+          DT::dataTableOutput('choiceTbl'),
+          hr(),
+          shiny::uiOutput('fprerun')),
           shiny::uiOutput('subjid'),
-          shiny::sliderInput(inputId = "x_range",label =  "Days Range", min = 0, max = 1000, value = c(0,755)),
-          shiny::uiOutput('y_var'),
-          shiny::uiOutput('method')
+          shiny::column(6,shiny::uiOutput('y_var')),
+          shiny::column(6,shiny::uiOutput('method')),
+          shiny::sliderInput(inputId = "x_range",label =  "Days Range", min = 0, max = 1000, value = c(0,755))
         ),
         shiny::mainPanel(
           shiny::tabsetPanel(
             shiny::tabPanel(
               title = 'Plot',shiny::plotOutput("fitPlot")),
           shiny::tabPanel(
-              title = 'Prerun Setting',
-              shiny::dataTableOutput('tbl')
+              title = 'Fit Data',
+              DT::dataTableOutput('tbl')
               )
           )
         )
