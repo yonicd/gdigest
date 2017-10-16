@@ -19,7 +19,14 @@ synch_remote <- function(file='README.md',action='pull',repo=NULL, local_storage
   if(is.null(repo)){
     remote_v <- system('git remote -v',intern=TRUE)
     if(length(remote_v)==0) stop('No repository supplied and current working directory not a remote repo')
-    repo=gsub('\\.(.*?)$','',gsub('^(.*?):','',remote_v[1])) 
+    if(grepl('https',remote_v[1])){
+      usr <- basename(dirname(gsub(' (.*?)$','',remote_v[1])))
+      repo <- file.path(usr,basename(gsub(' (.*?)$','',remote_v[1])))  
+    }else{
+      repo=gsub('\\.(.*?)$','',gsub('^(.*?):','',remote_v[1]))  
+    }
+    
+    
   }
   
   repo_current <- basename(vcs::ls_remote(repo, subdir = remote_storage, ...))
