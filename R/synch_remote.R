@@ -54,8 +54,8 @@ synch_remote <- function(file='README.md',action='pull',repo=NULL, local_storage
 
     if( length(new_from_local)>0 ){
       system(sprintf("git add %s",remote_storage))
-      system(sprintf("git commit -m 'add files %s' -- %s",paste0(new_from_local,collapse = ','),remote_storage))
-      system('git push origin master')
+      system(sprintf('git commit -m "add files %s" -- %s',paste0(new_from_local,collapse = ','),remote_storage))
+      system("git push origin master")
     }
   
   repo_current <- vcs::ls_remote(repo, subdir = remote_storage, ...)
