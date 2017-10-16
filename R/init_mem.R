@@ -16,11 +16,11 @@ init_mem <- function(f,cache=cache_memory(),fname='mem_f'){
   
   fout <- memoise::memoise(function(...){
     on.exit({
-      assign(digest::digest(list(...)),list(...),envir = sys.frame(-1))
+      assign(digest::digest(list(...)),list(...),envir = sys.frame(-3))
     },add = TRUE)
     f(...)
   }, cache = cache)
-  
+
   assign(fname,value = fout,envir = sys.frame(-1))
   
 }
